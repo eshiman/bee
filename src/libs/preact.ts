@@ -13,7 +13,11 @@ export const useCanvas = (
     ...inputs,
   ]);
 
-  return ref;
+  // `useRef` without an initial value returns `MutableRef<T | undefined>`,
+  // but for usage as a `ref` prop we want `PropRef<HTMLCanvasElement>`.
+  // It's safe to assert here because all consumers guard against `ref.current`
+  // being null/undefined before using it.
+  return ref as unknown as PropRef<HTMLCanvasElement>;
 };
 /** Use Canvas 2D */
 export const useCanvas2d = (

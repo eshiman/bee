@@ -9,7 +9,7 @@ import { asyncReducerFactory, caseFn } from "@nll/dux/Reducers";
 import { asyncExhaustMap } from "@nll/dux/Operators";
 import { compareDesc, endOfToday, isBefore, parseISO } from "date-fns";
 import { createSelector } from "reselect";
-import { from } from "rxjs";
+import { from, Observable } from "rxjs";
 import { ajax } from "rxjs/ajax";
 
 import { createStateRestore, logger } from "../../libs/dux";
@@ -119,9 +119,12 @@ gameStore.addReducers(foundWordCase);
 /** Get  Games */
 const getGames = action.async<string, Record<string, Game>, Error>("GET_GAMES");
 const getGamesReducer = asyncReducerFactory(getGames, gamesL);
-const getGamesHandler = (url: string) =>
+const getGamesHandler = (url: string): Observable<Record<string, Game>> =>
   ajax.getJSON(url).pipe(mapDecode(GamesCodec));
-const getGamesRunOnce = asyncExhaustMap(getGames, getGamesHandler);
+const getGamesRunOnce = asyncExhaustMap<string, Record<string, Game>, Error, Record<string, any>>(
+  getGames,
+  getGamesHandler,
+);
 gameStore
   .addReducers(getGamesReducer)
   .addRunOnces(getGamesRunOnce)

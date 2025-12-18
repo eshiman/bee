@@ -7,7 +7,7 @@ import "./styles/index.scss";
 // Wait for font to load before rendering
 new FontFace("Markazi Text", "url(/MarkaziText.ttf)")
   .load()
-  .then((font) => {
+  .then((font: FontFace) => {
     font.display = "swap";
     return document.fonts.add(font).ready;
   })

@@ -1,4 +1,4 @@
-import { Decoder } from "io-ts/Decoder";
+import { Decoder, DecodeError } from "io-ts/Decoder";
 import { drawTree } from "fp-ts/Tree";
 import { map } from "rxjs/operators";
 import * as E from "fp-ts/Either";
@@ -24,15 +24,23 @@ export const fromEither = <L, R>(
 ): Observable<R> => obs.pipe(mergeMap(toObservable));
 
 /**
+ * @name renderDecodeError
+ * @description Renders a DecodeError as a human-readable string.
+ * DecodeError is a Tree<string> structure, so we use drawTree to convert it to text.
+ */
+const renderDecodeError = (error: DecodeError): string =>
+  drawTree(error as unknown as import("fp-ts/Tree").Tree<string>);
+
+/**
  * @name mapDecode
  * @description A pipeable observable operator factory that takes an io-ts decoder
  * and returns a pipeable operator that decodes the
  */
 export const mapDecode =
-  <A>({ decode }: Decoder<A>) => (obs: Observable<unknown>): Observable<A> =>
+  <A>({ decode }: Decoder<unknown, A>) => (obs: Observable<unknown>): Observable<A> =>
     obs.pipe(
       map((u) => (typeof u === "string" ? JSON.parse(u) : u)),
       map(decode),
-      map(E.mapLeft(drawTree)),
+      map(E.mapLeft(renderDecodeError)),
       fromEither,
     );
