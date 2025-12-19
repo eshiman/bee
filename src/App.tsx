@@ -37,13 +37,19 @@ export function App() {
   // Handle browser navigation (back/forward buttons)
   useEffect(() => {
     const handlePopState = () => {
-      const path = getCurrentPath();
-      const pathWithBase = basePath === "/" ? path : basePath.slice(0, -1) + path;
-      // Fix URL if it's missing the base path
-      if (window.location.pathname !== pathWithBase) {
-        window.history.replaceState(null, "", pathWithBase);
-      }
-      setCurrentUrl(path);
+      // Get the normalized path (without base path) for the router
+      const normalizedPath = getCurrentPath();
+      // Update router state first
+      setCurrentUrl(normalizedPath);
+      // Fix the browser URL if needed, but do it after the router has a chance to process
+      requestAnimationFrame(() => {
+        const pathWithBase = basePath === "/" ? normalizedPath : basePath.slice(0, -1) + normalizedPath;
+        if (window.location.pathname !== pathWithBase) {
+          window.history.replaceState(null, "", pathWithBase);
+          // After fixing the URL, ensure router state is still correct
+          setCurrentUrl(normalizedPath);
+        }
+      });
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
@@ -54,6 +60,7 @@ export function App() {
       <Notification />
 
       <Router
+        key={currentUrl}
         url={currentUrl}
         onChange={(e: { url: string }) => {
           // Normalize the URL - strip base path if present
