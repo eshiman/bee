@@ -25,6 +25,15 @@ function getCurrentPath(): string {
 export function App() {
   const [currentUrl, setCurrentUrl] = useState(getCurrentPath());
 
+  // Ensure browser URL is correct on initial load (especially when coming from 404.html)
+  useEffect(() => {
+    const path = getCurrentPath();
+    const pathWithBase = basePath === "/" ? path : basePath.slice(0, -1) + path;
+    if (window.location.pathname !== pathWithBase) {
+      window.history.replaceState(null, "", pathWithBase);
+    }
+  }, []);
+
   // Handle browser navigation (back/forward buttons)
   useEffect(() => {
     const handlePopState = () => {
