@@ -12,7 +12,9 @@ new FontFace("Markazi Text", `url(${basePath}MarkaziText.ttf)`)
   .load()
   .then((font: FontFace) => {
     font.display = "swap";
-    return document.fonts.add(font).ready;
+    document.fonts.add(font);
+    // Wait for all fonts to be ready
+    return document.fonts.ready;
   })
   .catch((error) => console.error("Failed to load font.", error))
   .then(() => {
