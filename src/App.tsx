@@ -1,4 +1,5 @@
-import { h, Fragment, useState, useEffect } from "preact";
+import { h, Fragment } from "preact";
+import { useState, useEffect } from "preact/hooks";
 import { Router } from "preact-router";
 
 import { GameListPage } from "./pages/GameListPage";
