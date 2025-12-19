@@ -37,7 +37,13 @@ export function App() {
   // Handle browser navigation (back/forward buttons)
   useEffect(() => {
     const handlePopState = () => {
-      setCurrentUrl(getCurrentPath());
+      const path = getCurrentPath();
+      const pathWithBase = basePath === "/" ? path : basePath.slice(0, -1) + path;
+      // Fix URL if it's missing the base path
+      if (window.location.pathname !== pathWithBase) {
+        window.history.replaceState(null, "", pathWithBase);
+      }
+      setCurrentUrl(path);
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
@@ -58,8 +64,13 @@ export function App() {
           
           // Update the browser URL to include the base path
           const pathWithBase = basePath === "/" ? normalizedUrl : basePath.slice(0, -1) + normalizedUrl;
-          if (window.location.pathname !== pathWithBase) {
-            window.history.pushState(null, "", pathWithBase);
+          const currentPath = window.location.pathname;
+
+          // Only update if the URL is different
+          if (currentPath !== pathWithBase) {
+            // Use replaceState to avoid creating extra history entries
+            // This fixes URLs that don't have the base path without polluting history
+            window.history.replaceState(null, "", pathWithBase);
           }
           setCurrentUrl(normalizedUrl);
         }}
