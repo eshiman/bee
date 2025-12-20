@@ -9,30 +9,28 @@ export const HelpPage: FunctionalComponent<HelpPageProps> = () => (
       <section class="fld-col flg-4">
         <h1 class="fs-u4">About</h1>
         <p>
-          I made this clone of the{" "}
-          <a href="https://www.nytimes.com/puzzles/spelling-bee">
-            New York Times Spelling Bee
-          </a>{" "}
-          because my friends and I didn't all want to pay to play.
+          This site is pretty much a copy of Brandon Blaylock's lovely
+          <a href="https://bee.ignoble.dev/"> Bee</a> game, except
+          translated to Russian. The original site is in English.
+
+          The goal is to make a game for my grandmother to play.
+
         </p>
         <p>
-          As I built it I realized that I didn't like many of the aspects of the
-          original design: the small size of the buttons, the overly
-          effervescent encouragements, the lack of stats and spoilers in the
-          puzzle, and the inability to play previous puzzlies. So I "fixed"
-          these things.
+          Please enjoy, Babushka Polina!
         </p>
         <p>
-          I continue to make improvements so be sure to refresh on occasion so
-          you get the latest version. I intend to keep this puzzlie free forever
-          so I hope you enjoy!
+          Love,
+        </p>
+        <p>
+          Esther
         </p>
       </section>
 
       <section class="fld-col flg-4">
         <h1 class="fs-u4">Rules</h1>
         <p>
-          The goal of the puzzlie is to find all of the words that can be
+          The goal of the puzzle is to find all of the words that can be
           created with the given seven letters. There are only a few notes:
         </p>
         <ul class="fld-col flg-4 ls-dot spaced">
@@ -49,15 +47,15 @@ export const HelpPage: FunctionalComponent<HelpPageProps> = () => (
           The puzzlies change throughout the week in size and letter choices.
         </p>
         <ul class="fld-col flg-4 ls-dot spaced">
-          <li>Sunday's puzzlies will have fewer than 41 words.</li>
-          <li>Monday's puzzlies will have 41 to 60 words.</li>
-          <li>Tuesday's puzzlies will have 61 to 80 words.</li>
-          <li>Wednesday's puzzlies will have 81 to 100 words.</li>
-          <li>Thursday's puzzlies will have 101 to 120 words.</li>
-          <li>Friday's puzzlies will have than more 120 words.</li>
+          <li>Sunday's puzzles will have fewer than 21 words.</li>
+          <li>Monday's puzzles will have 21 to 30 words.</li>
+          <li>Tuesday's puzzles will have 31 to 40 words.</li>
+          <li>Wednesday's puzzles will have 41 to 50 words.</li>
+          <li>Thursday's puzzles will have 51 to 60 words.</li>
+          <li>Friday's puzzles will have than more 70 words.</li>
           <li>
-            Saturday's puzzlies will have more than 120 words and will exclude
-            the letters s and d.
+            Saturday's puzzles will have more than 70 words and will exclude
+            the letters "т" and "л".
           </li>
         </ul>
       </section>
