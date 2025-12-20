@@ -16,21 +16,23 @@ export type Games = D.TypeOf<typeof Games>;
 
 // A collection of games sorted into length buckets
 // Supports both English (40, 60, 80, 100, 120) and Russian (20, 30, 40, 50, 60) configurations
-export const SortedGames = D.intersect(
+export const SortedGames = pipe(
   D.struct({
     fri: D.array(Game),
     sat: D.array(Game),
   }),
-  D.partial({
-    20: D.array(Game),
-    30: D.array(Game),
-    40: D.array(Game),
-    50: D.array(Game),
-    60: D.array(Game),
-    80: D.array(Game),
-    100: D.array(Game),
-    120: D.array(Game),
-  })
+  D.intersect(
+    D.partial({
+      20: D.array(Game),
+      30: D.array(Game),
+      40: D.array(Game),
+      50: D.array(Game),
+      60: D.array(Game),
+      80: D.array(Game),
+      100: D.array(Game),
+      120: D.array(Game),
+    })
+  )
 );
 export type SortedGames = D.TypeOf<typeof SortedGames>;
 
