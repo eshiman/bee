@@ -20,6 +20,7 @@ import {
   WordSortOptions,
 } from "../stores/settings";
 import { getWordSort } from "../stores/settings/const";
+import { useStrings } from "../stores/settings/strings";
 
 interface GamePageProps {
   id?: string;
@@ -34,6 +35,7 @@ export const GamePage: FunctionalComponent<GamePageProps> = ({
   const [data, gameDispatch] = useGameStore(selectGame, eqGameAndSave.equals);
 
   const [{ details, sort }, settingsDispatch] = useSettingsStore(identity);
+  const t = useStrings();
 
   const handleDetailsChange = useCallback(
     (details: DetailOptions) => settingsDispatch(changeSettings({ details })),
@@ -48,14 +50,19 @@ export const GamePage: FunctionalComponent<GamePageProps> = ({
     [decodedId, gameDispatch]
   );
 
+  const errorMessage = useMemo(
+    () => t("game", "gameNotFoundError").replace("{id}", id),
+    [t, id]
+  );
+
   return (
     <DefaultLayout>
       {DE.squash(
-        () => <div>Loading</div>,
+        () => <div>{t("game", "loading")}</div>,
         () => (
           <ErrorCard
-            title="Game Not Found"
-            error={`Game with id '${id}' does not exist!`}
+            title={t("game", "gameNotFound")}
+            error={errorMessage}
           />
         ),
         ({ game, save, score }: GameAndSave) => {

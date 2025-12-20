@@ -14,10 +14,12 @@ import { DefaultLayout } from "../components/Layouts";
 import { ErrorCard } from "../components/ErrorCard";
 import { LoadingCard } from "../components/LoadingCard";
 import { Button } from "../components/Button";
+import { useStrings } from "../stores/settings/strings";
 
-const toData = (data: GameAndSave[]) => {
+const GameList: FunctionalComponent<{ data: GameAndSave[] }> = ({ data }) => {
   const [showAll, setShowAll] = useState(false);
   const handleShowAll = useCallback(() => setShowAll((s) => !s), [setShowAll]);
+  const t = useStrings();
 
   const games = showAll ? data : data.slice(0, 7);
 
@@ -37,7 +39,7 @@ const toData = (data: GameAndSave[]) => {
 
           <span class="fld-col flg-3 ai-end fs-d1">
             <span class="cf-rev-honey-dark">
-              <strong>{score}</strong> point{score === 1 ? "" : "s"}
+              <strong>{score}</strong> {t("home", score === 1 ? "point" : "points")}
             </span>
 
             <span>
@@ -58,7 +60,7 @@ const toData = (data: GameAndSave[]) => {
         class="fld-row ai-ctr jc-ctr"
         onClick={handleShowAll}
       >
-        {showAll ? "Hide Old Puzzles" : "Show Old Puzzles"}
+        {showAll ? t("home", "hideOldPuzzles") : t("home", "showOldPuzzles")}
       </Button>
     </section>
   );
@@ -66,15 +68,16 @@ const toData = (data: GameAndSave[]) => {
 
 export const GameListPage: FunctionalComponent<{}> = () => {
   const [data] = useGameStore(selectAvailableGames);
+  const t = useStrings();
 
   return (
     <DefaultLayout>
       {squash(
-        () => <LoadingCard title="Loading Games" />,
+        () => <LoadingCard title={t("home", "loadingGames")} />,
         (error: unknown) => (
-          <ErrorCard title="Error Retrieving Games" error={error} />
+          <ErrorCard title={t("home", "errorRetrievingGames")} error={error} />
         ),
-        toData
+        (data: GameAndSave[]) => <GameList data={data} />
       )(data)}
     </DefaultLayout>
   );

@@ -31,6 +31,7 @@ import { mapDecode } from "../../libs/ajax";
 import { failureBuzz, settingsStore, successBuzz, changeSettings } from "../settings";
 import { INITIAL_SETTINGS_STATE } from "../settings/const";
 import { LanguageOptions } from "../settings/models";
+import { getString } from "../settings/strings";
 import {
   failureNotice,
   infoNotice,
@@ -74,33 +75,33 @@ const submitWordRunEvery = filterEvery(
   (s: GameState, { value: { id, guess } }) => {
     const game = gameG(id).get(s);
     const save = saveG(id).get(s);
+    const language = settingsStore.getState().language;
 
     if (!DE.isSuccess(game)) {
       settingsStore.dispatch(failureBuzz);
-      notificationsStore.dispatch(failureNotice("No game!"));
+      notificationsStore.dispatch(failureNotice(getString("notifications", "noGame", language)));
     } else if (guess.length < 4) {
       settingsStore.dispatch(failureBuzz);
-      notificationsStore.dispatch(failureNotice(guess, "Too Short"));
+      notificationsStore.dispatch(failureNotice(guess, getString("notifications", "tooShort", language)));
     } else if (
       !guess.split("").every((c) =>
         c === game.value.right.middle || game.value.right.chars.includes(c)
       )
     ) {
       settingsStore.dispatch(failureBuzz);
-      notificationsStore.dispatch(failureNotice(guess, "Bad Letters"));
+      notificationsStore.dispatch(failureNotice(guess, getString("notifications", "badLetters", language)));
     } else if (!guess.includes(game.value.right.middle)) {
       settingsStore.dispatch(failureBuzz);
       notificationsStore.dispatch(
-        failureNotice(guess, "Missing Center Letter"),
+        failureNotice(guess, getString("notifications", "missingCenterLetter", language)),
       );
     } else if (!game.value.right.dictionary.some(eqInsensitive(guess))) {
       settingsStore.dispatch(failureBuzz);
-      notificationsStore.dispatch(failureNotice(guess, "Not In Word List"));
+      notificationsStore.dispatch(failureNotice(guess, getString("notifications", "notInWordList", language)));
     } else if (save.found.some(eqInsensitive(guess))) {
       settingsStore.dispatch(failureBuzz);
-      notificationsStore.dispatch(infoNotice(guess, "Already Found"));
+      notificationsStore.dispatch(infoNotice(guess, getString("notifications", "alreadyFound", language)));
     } else {
-      const language = settingsStore.getState().language;
       const points = wordToScore(guess, language);
       settingsStore.dispatch(successBuzz);
       notificationsStore.dispatch(successNotice(guess, `+ ${points} Points`));

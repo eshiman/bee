@@ -10,6 +10,7 @@ import { Game } from "../../stores/game";
 import { eqInsensitive } from "../../libs/strings";
 import { notNil } from "../../libs/typeguards";
 import { isIn } from "../../libs/arrays";
+import { useStrings } from "../../stores/settings/strings";
 
 interface WordListProps {
   words: string[];
@@ -27,39 +28,48 @@ const WordList: FunctionalComponent<WordListProps> = ({
   pangrams,
   showAll,
   onSortChange,
-}) => (
-  <If predicate={words.length > 0}>
-    {() => (
-      <Fragment>
-        <ul class="fit-grid-3 fs-d2">
-          {words.map((word) => (
-            <li
-              class={`${found.some(eqInsensitive(word)) ? "ct-rev-honey-dark" : ""} ${pangrams.includes(word) ? "fw-u3" : ""}`}
-            >
-              {word}
-            </li>
-          ))}
-        </ul>
-        <If predicate={!showAll}>
-          {() => (
-            <div class="fld-row flg-4">
-              {Object.keys(WordSortOptions).map((key: any) => (
-                <Button
-                  class="fls-1-1 fld-row ai-ctr jc-ctr fs-d2 vw-p30"
-                  theme={key === sort ? "ct-light" : "ct-lighter"}
-                  hover="ct-dark"
-                  onClick={() => onSortChange(key)}
-                >
-                  {key}
-                </Button>
-              ))}
-            </div>
-          )}
-        </If>
-      </Fragment>
-    )}
-  </If>
-);
+}) => {
+  const t = useStrings();
+  const sortKeyMap: Record<WordSortOptions, "sortFound" | "sortLength" | "sortAlphabetic"> = {
+    [WordSortOptions.Found]: "sortFound",
+    [WordSortOptions.Length]: "sortLength",
+    [WordSortOptions.Alphabetic]: "sortAlphabetic",
+  };
+
+  return (
+    <If predicate={words.length > 0}>
+      {() => (
+        <Fragment>
+          <ul class="fit-grid-3 fs-d2">
+            {words.map((word) => (
+              <li
+                class={`${found.some(eqInsensitive(word)) ? "ct-rev-honey-dark" : ""} ${pangrams.includes(word) ? "fw-u3" : ""}`}
+              >
+                {word}
+              </li>
+            ))}
+          </ul>
+          <If predicate={!showAll}>
+            {() => (
+              <div class="fld-row flg-4">
+                {Object.keys(WordSortOptions).map((key: any) => (
+                  <Button
+                    class="fls-1-1 fld-row ai-ctr jc-ctr fs-d2 vw-p30"
+                    theme={key === sort ? "ct-light" : "ct-lighter"}
+                    hover="ct-dark"
+                    onClick={() => onSortChange(key)}
+                  >
+                    {t("gameComponent", sortKeyMap[key as WordSortOptions])}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </If>
+        </Fragment>
+      )}
+    </If>
+  );
+};
 
 interface StatsProps {
   found: string[];
@@ -91,6 +101,7 @@ const Stats: FunctionalComponent<StatsProps> = ({
   dictionary,
   pangrams
 }) => {
+  const t = useStrings();
   const dictStatsArray = useMemo(() => {
     const stats = getStats(dictionary);
     return Object.keys(stats).map((key) => ({
@@ -108,7 +119,7 @@ const Stats: FunctionalComponent<StatsProps> = ({
     <ul class="fs-d1 fld-col flg-2">
       {dictStatsArray.map(({ key, value }) => (
         <li class="fld-row flg-3 jc-spb ce-rev-honey bwb-1">
-          <span>{key} letter words</span>
+          <span>{key} {t("gameComponent", "letterWords")}</span>
           <span>
             <strong>{foundStats[key] || 0}</strong>
             <span>/</span>
@@ -117,7 +128,7 @@ const Stats: FunctionalComponent<StatsProps> = ({
         </li>
       ))}
       <li class="fld-row flg-3 jc-spb">
-        <span>Pangrams</span>
+        <span>{t("gameComponent", "pangrams")}</span>
         <span>
           <strong>{foundPangrams.length}</strong>
           <span>/</span>
@@ -162,6 +173,7 @@ export const Found: FunctionalComponent<FoundProps> = ({
 
   const [showAll, setShowAll] = useState(false);
   const handleShowAll = useCallback(() => setShowAll((s) => !s), [setShowAll]);
+  const t = useStrings();
 
   const list = showAll ? game.dictionary : found;
   const words = useMemo(() => list.filter((l) => l.startsWith(word)), [
@@ -185,7 +197,7 @@ export const Found: FunctionalComponent<FoundProps> = ({
           } cb-honey-dark-on-hover fls-1-1 pwa-4 ta-c bwb-1 ce-rev-honey`}
           onClick={handleWordsSelect}
         >
-          Words
+          {t("gameComponent", "words")}
         </span>
         <span
           class={`${
@@ -193,19 +205,19 @@ export const Found: FunctionalComponent<FoundProps> = ({
           } cb-honey-dark-on-hover fls-1-1 pwa-4 ta-c bwb-1 ce-rev-honey`}
           onClick={handleStatsSelect}
         >
-          Stats
+          {t("gameComponent", "stats")}
         </span>
       </div>
 
       <section class="fld-col flg-4 pwa-4">
         <div class="fld-row flg-4 jc-spb">
           <span>
-            Found <strong>{found.length}</strong> /{" "}
+            {t("gameComponent", "found")} <strong>{found.length}</strong> /{" "}
             <strong>{game.dictionary.length}</strong>
           </span>
 
           <span class="cf-rev-honey-dark">
-            <strong>{score}</strong> point{score === 1 ? "" : "s"}
+            <strong>{score}</strong> {t("gameComponent", score === 1 ? "point" : "points")}
           </span>
         </div>
         <If predicate={details === "words"}>
@@ -239,7 +251,7 @@ export const Found: FunctionalComponent<FoundProps> = ({
               class="fld-row ai-ctr jc-ctr"
               onClick={handleShowAll}
             >
-              {showAll ? "Hide Spoilers" : "Show Spoilers"}
+              {showAll ? t("gameComponent", "hideSpoilers") : t("gameComponent", "showSpoilers")}
             </Button>
           )}
         </If>
