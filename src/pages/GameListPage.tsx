@@ -58,7 +58,7 @@ const toData = (data: GameAndSave[]) => {
         class="fld-row ai-ctr jc-ctr"
         onClick={handleShowAll}
       >
-        {showAll ? "Hide Old Puzzlies" : "Show Old Puzzlies"}
+        {showAll ? "Hide Old Puzzles" : "Show Old Puzzles"}
       </Button>
     </section>
   );

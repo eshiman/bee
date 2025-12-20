@@ -44,7 +44,7 @@ export const HelpPage: FunctionalComponent<HelpPageProps> = () => (
         <h1 class="fs-u4">Weekly Progression</h1>
 
         <p>
-          The puzzlies change throughout the week in size and letter choices.
+          The puzzles change throughout the week in size and letter choices.
         </p>
         <ul class="fld-col flg-4 ls-dot spaced">
           <li>Sunday's puzzles will have fewer than 21 words.</li>
