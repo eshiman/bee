@@ -1,10 +1,12 @@
 # Bee
 
-[![Donate](https://www.buymeacoffee.com/assets/img/custom_images/yellow_img.png)](https://www.buymeacoffee.com/baetheus) - Donate to the original creator! He certainly put a lot more work into this than I did.
+[![Donate](https://www.buymeacoffee.com/assets/img/custom_images/yellow_img.png)](https://www.buymeacoffee.com/baetheus) - Donate to the original creator!
 
 Original live version is at [bee.ignoble.dev](https://bee.ignoble.dev).
 
 Russian live version is at [eshiman.github.io/bee/](https://eshiman.github.io/bee)
+
+---
 
 A weekend clone of the [New York Times Spelling Bee](https://www.nytimes.com/puzzles/spelling-bee).
 
