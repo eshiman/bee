@@ -25,7 +25,7 @@ const toData = (data: GameAndSave[]) => {
     <section class="fld-col flg-4 ai-stc">
       {games.map(({ game, save, score }) => (
         <Link
-          href={`/games/${game.id}`}
+          href={`/games/${encodeURIComponent(game.id)}`}
           class="fld-row flg-4 jc-spb ai-ctr ce-rev-honey cb-honey-on-hover pwy-4 pwl-5 pwr-4 bwa-1 bra-1 crsr-pointer"
         >
           <span class="fld-row flg-4 ai-ctr fw-u1 fs-u5 ff-head">

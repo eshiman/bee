@@ -28,7 +28,9 @@ import {
 } from "./consts";
 import { GamesCodec, SaveStateCodec } from "./validators";
 import { mapDecode } from "../../libs/ajax";
-import { failureBuzz, settingsStore, successBuzz } from "../settings";
+import { failureBuzz, settingsStore, successBuzz, changeSettings } from "../settings";
+import { INITIAL_SETTINGS_STATE } from "../settings/const";
+import { LanguageOptions } from "../settings/models";
 import {
   failureNotice,
   infoNotice,
@@ -98,7 +100,8 @@ const submitWordRunEvery = filterEvery(
       settingsStore.dispatch(failureBuzz);
       notificationsStore.dispatch(infoNotice(guess, "Already Found"));
     } else {
-      const points = wordToScore(guess);
+      const language = settingsStore.getState().language;
+      const points = wordToScore(guess, language);
       settingsStore.dispatch(successBuzz);
       notificationsStore.dispatch(successNotice(guess, `+ ${points} Points`));
       return foundWord({ id, guess });
@@ -116,6 +119,16 @@ const foundWordCase = caseFn(
 );
 gameStore.addReducers(foundWordCase);
 
+/** Get Games URL based on language */
+const getGamesUrl = (language: LanguageOptions): string => {
+  const baseUrl = import.meta.env.BASE_URL;
+  if (language === LanguageOptions.russian) {
+    return `${baseUrl}games_russian.20251219.json`;
+  } else {
+    return `${baseUrl}games.20250626.json`;
+  }
+};
+
 /** Get  Games */
 const getGames = action.async<string, Record<string, Game>, Error>("GET_GAMES");
 const getGamesReducer = asyncReducerFactory(getGames, gamesL);
@@ -125,10 +138,27 @@ const getGamesRunOnce = asyncExhaustMap<string, Record<string, Game>, Error, Rec
   getGames,
   getGamesHandler,
 );
+
+// Watch for language changes and reload games
+const languageChangeRunEvery = filterEvery(
+  changeSettings,
+  (_, { value }) => {
+    if (value.language !== undefined) {
+      const url = getGamesUrl(value.language);
+      gameStore.dispatch(getGames.pending(url));
+    }
+  },
+);
+settingsStore.addRunEverys(languageChangeRunEvery);
+
+// Load games on initial setup based on current language
 gameStore
   .addReducers(getGamesReducer)
-  .addRunOnces(getGamesRunOnce)
-  .dispatch(getGames.pending(`${import.meta.env.BASE_URL}games.20250626.json`));
+  .addRunOnces(getGamesRunOnce);
+
+// Load games on initial setup based on initial language
+// The filterEvery will handle language changes including when settings are loaded from localStorage
+gameStore.dispatch(getGames.pending(getGamesUrl(INITIAL_SETTINGS_STATE.language)));
 
 /** Save Storage - Migrate to simple wireup in one week */
 const { wireupActions } = createStateRestore<SaveStateCodec, GameState>(
@@ -139,19 +169,25 @@ wireupActions(gameStore, [foundWord]);
 
 /** Selectors */
 export const selectGameAndSaveById = (id: string) =>
-  createSelector(gameG(id).get, saveG(id).get, (gameDE, save) =>
-    DE.map(
-      (game: Game): GameAndSave => ({
-        game,
-        save,
-        score: foundToScore(save.found),
-      }),
-    )(gameDE));
+  createSelector(
+    gameG(id).get,
+    saveG(id).get,
+    () => settingsStore.getState().language,
+    (gameDE, save, language) =>
+      DE.map(
+        (game: Game): GameAndSave => ({
+          game,
+          save,
+          score: foundToScore(save.found, language),
+        }),
+      )(gameDE)
+  );
 
 export const selectAvailableGames = createSelector(
   gamesL.get,
   savesL.get,
-  (gamesDE, saves) => {
+  () => settingsStore.getState().language,
+  (gamesDE, saves, language) => {
     return DE.map((games: Record<string, Game>) =>
       Object.keys(games)
         .map((key) => games[key])
@@ -163,7 +199,7 @@ export const selectAvailableGames = createSelector(
         .map(
           (game): GameAndSave => {
             const save = saveGNN(game.id).get(saves);
-            return { game, save, score: foundToScore(save.found) };
+            return { game, save, score: foundToScore(save.found, language) };
           },
         )
     )(gamesDE);

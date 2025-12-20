@@ -28,7 +28,9 @@ interface GamePageProps {
 export const GamePage: FunctionalComponent<GamePageProps> = ({
   id = "new",
 }) => {
-  const selectGame = useCallback(selectGameAndSaveById(id), [id]);
+  // Decode the ID from the URL (preact-router may or may not decode it automatically)
+  const decodedId = id && id !== "new" ? decodeURIComponent(id) : id;
+  const selectGame = useCallback(selectGameAndSaveById(decodedId), [decodedId]);
   const [data, gameDispatch] = useGameStore(selectGame, eqGameAndSave.equals);
 
   const [{ details, sort }, settingsDispatch] = useSettingsStore(identity);
@@ -42,8 +44,8 @@ export const GamePage: FunctionalComponent<GamePageProps> = ({
     [settingsDispatch]
   );
   const handleSubmit = useCallback(
-    (guess: string) => gameDispatch(submitWord({ id, guess })),
-    [id, gameDispatch]
+    (guess: string) => gameDispatch(submitWord({ id: decodedId, guess })),
+    [decodedId, gameDispatch]
   );
 
   return (

@@ -4,6 +4,7 @@ import { identity } from "fp-ts/function";
 import { MdVibration, MdLanguage } from "react-icons/md";
 
 import { useSettingsStore, changeSettings, LanguageOptions } from "../stores/settings";
+import { getString, Strings } from "../stores/settings/strings";
 import { DefaultLayout } from "../components/Layouts";
 import { Button } from "../components/Button";
 
@@ -14,7 +15,11 @@ export const SettingsPage: FunctionalComponent<{}> = () => {
     [vibration]
   );
   const handleLanguage = useCallback(
-    () => dispatch(changeSettings({ language: language == LanguageOptions.russian ? LanguageOptions.english: LanguageOptions.russian  })),
+    () => dispatch(changeSettings({
+      language: language === LanguageOptions.russian
+        ? LanguageOptions.english
+        : LanguageOptions.russian
+    })),
     [language]
   );
 
