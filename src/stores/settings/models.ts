@@ -1,3 +1,9 @@
+export const LanguageOptions = {
+  english: "English",
+  russian: "Русский",
+} as const;
+export type LanguageOptions = typeof DetaiLanguageOptionslOptions[keyof typeof DetaLanguageOptionsilOptions];
+
 export const DetailOptions = {
   stats: "stats",
   words: "words",
@@ -13,6 +19,7 @@ export type WordSortOptions = typeof WordSortOptions[keyof typeof WordSortOption
 
 export type SettingsState = {
   vibration: boolean;
+  language: LanguageOptions;
   details: DetailOptions;
   sort: WordSortOptions;
 };

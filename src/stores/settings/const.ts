@@ -1,16 +1,18 @@
 import * as C from "io-ts/Codec";
 
-import { DetailOptions, SettingsState, WordSortOptions } from "./models";
+import { DetailOptions, SettingsState, WordSortOptions, LanguageOptions } from "./models";
 import { identity } from "fp-ts/function";
 
 export const INITIAL_SETTINGS_STATE: SettingsState = {
   vibration: true,
+ language: LanguageOptions.russian,
   details: DetailOptions.words,
   sort: WordSortOptions.Found,
 };
 
 export const SettingsStateCodec = C.partial({
   vibration: C.boolean,
+  language: C.literal(LanguageOptions.english, LanguageOptions.russian),
   details: C.literal(DetailOptions.stats, DetailOptions.words),
   sort: C.literal(
     WordSortOptions.Found,
