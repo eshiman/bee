@@ -15,15 +15,25 @@ export const Games = D.record(Game);
 export type Games = D.TypeOf<typeof Games>;
 
 // A collection of games sorted into length buckets
-export const SortedGames = D.struct({
-  40: D.array(Game),
-  60: D.array(Game),
-  80: D.array(Game),
-  100: D.array(Game),
-  120: D.array(Game),
-  fri: D.array(Game),
-  sat: D.array(Game),
-});
+// Supports both English (40, 60, 80, 100, 120) and Russian (20, 30, 40, 50, 60) configurations
+export const SortedGames = pipe(
+  D.struct({
+    fri: D.array(Game),
+    sat: D.array(Game),
+  }),
+  D.intersect(
+    D.partial({
+      20: D.array(Game),
+      30: D.array(Game),
+      40: D.array(Game),
+      50: D.array(Game),
+      60: D.array(Game),
+      80: D.array(Game),
+      100: D.array(Game),
+      120: D.array(Game),
+    })
+  )
+);
 export type SortedGames = D.TypeOf<typeof SortedGames>;
 
 // A game object with a date field indicating it is scheduled
@@ -36,15 +46,3 @@ export type ScheduledGame = D.TypeOf<typeof ScheduledGame>;
 // A collection of scheduled games
 export const ScheduledGames = D.record(ScheduledGame);
 export type ScheduledGames = D.TypeOf<typeof ScheduledGames>;
-
-// A simple type to turn a day of the week modulus into a sorted bucket
-export const intToGroup: Record<0 | 1 | 2 | 3 | 4 | 5 | 6, keyof SortedGames> =
-  {
-    0: "40",
-    1: "60",
-    2: "80",
-    3: "100",
-    4: "120",
-    5: "fri",
-    6: "sat",
-  };

@@ -4,6 +4,8 @@ import { DatumEither, initial } from "@nll/datum/DatumEither";
 import { getEq } from "@nll/datum/Datum";
 
 import { notNil } from "../../libs/typeguards";
+import { LanguageOptions } from "../settings/models";
+import { getConstant } from "../settings/constants";
 
 export type Game = {
   id: string;
@@ -59,45 +61,31 @@ export const INITIAL_GAME_STATE: GameState = {
   games: initial,
 };
 
-export const SCORE_MAP: Record<string, number> = {
-  a: 1,
-  b: 3,
-  c: 3,
-  d: 2,
-  e: 1,
-  f: 4,
-  g: 2,
-  h: 4,
-  i: 1,
-  j: 8,
-  k: 5,
-  l: 1,
-  m: 3,
-  n: 1,
-  o: 1,
-  p: 3,
-  q: 10,
-  r: 1,
-  s: 1,
-  t: 1,
-  u: 1,
-  v: 4,
-  w: 4,
-  x: 8,
-  y: 4,
-  z: 10,
-};
-
-function charToScore(char: string): number {
-  return notNil(SCORE_MAP[char]) ? SCORE_MAP[char] : 0;
+// Helper function to get the appropriate score map based on language
+export function getScoreMap(language: LanguageOptions): Record<string, number> {
+  return getConstant("scoreMap", language);
 }
 
-export function wordToScore(word: string): number {
+function charToScore(
+  char: string,
+  scoreMap: Record<string, number>
+): number {
+  return notNil(scoreMap[char]) ? scoreMap[char] : 0;
+}
+
+export function wordToScore(word: string, language: LanguageOptions): number {
+  const scoreMap = getScoreMap(language);
   return word
     .split("")
-    .reduce((total, letter) => total + charToScore(letter), 0);
+    .reduce((total, letter) => total + charToScore(letter, scoreMap), 0);
 }
 
-export function foundToScore(found: string[]): number {
-  return found.reduce((total, word) => total + wordToScore(word), 0);
+export function foundToScore(
+  found: string[],
+  language: LanguageOptions
+): number {
+  return found.reduce(
+    (total, word) => total + wordToScore(word, language),
+    0
+  );
 }

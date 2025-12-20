@@ -1,8 +1,27 @@
+// ============================================================================
+// LANGUAGE CONFIGURATION
+// ============================================================================
+// Set to "english" or "russian" to switch between language configurations
+const LANGUAGE: "english" | "russian" = "russian";
+// ============================================================================
+
 function create_games() {
-  const DICTIONARY_FILE = "./english-no-profanity.json";
+  const DICTIONARY_FILE = LANGUAGE === "russian" 
+    ? "./russian_dictionary.json"
+    : "./english-no-profanity.json";
   const PANGRAM_GROUP_FILE = "./pangram_groups.json";
   const PLAYED_GAME_FILE = "./games_before_20200606.json";
   const GAME_GROUP_FILE = "./grouped_games.json";
+  
+  // Bucket thresholds based on language
+  const BUCKETS = LANGUAGE === "russian"
+    ? [20, 30, 40, 50, 60]
+    : [40, 60, 80, 100, 120];
+  
+  // Special characters for fri/sat sorting (for games with > max bucket words)
+  const FRI_CHARS = LANGUAGE === "russian"
+    ? ["т", "л"]
+    : ["s", "d"];
 
   const DICTIONARY: string[] = JSON.parse(
     Deno.readTextFileSync(DICTIONARY_FILE)
@@ -47,9 +66,9 @@ function create_games() {
     dictionary: string[];
   };
 
-  const played_games: Record<string, Game> = JSON.parse(
+  /*const played_games: Record<string, Game> = JSON.parse(
     Deno.readTextFileSync(PLAYED_GAME_FILE)
-  );
+  );*/
 
   /**
    * Create games from pangram groups
@@ -79,7 +98,8 @@ function create_games() {
   function makeGame(letters: string): Game {
     const middle = letters[getRandomInt(0, letters.length - 1)];
     const chars = letters.split("").filter((char) => char !== middle);
-    const dictionary = DICTIONARY.filter(canBeMade(middle, letters.split("")));
+    const dictionary = DICTIONARY.filter(canBeMade(middle, letters.split("")))
+      .filter((word) => word.length >= 4);
 
     console.log("Make game", { letters, length: dictionary.length });
 
@@ -91,44 +111,48 @@ function create_games() {
     };
   }
 
+  // Initialize accumulator with dynamic buckets
+  const initialAcc: Record<string, Game[]> = {
+    sat: [],
+    fri: [],
+  };
+  BUCKETS.forEach(bucket => {
+    initialAcc[bucket] = [];
+  });
+
   const games = Object.keys(pangram_groups)
     .map(makeGame)
-    .filter((game) => played_games[game.id] === undefined)
+//    .filter((game) => played_games[game.id] === undefined)
     .reduce(
       (acc, cur) => {
-        if (cur.dictionary.length <= 40) {
-          acc[40].push(cur);
-        } else if (cur.dictionary.length <= 60) {
-          acc[60].push(cur);
-        } else if (cur.dictionary.length <= 80) {
-          acc[80].push(cur);
-        } else if (cur.dictionary.length <= 100) {
-          acc[100].push(cur);
-        } else if (cur.dictionary.length <= 120) {
-          acc[120].push(cur);
-        } else {
+        const wordCount = cur.dictionary.length;
+        let sorted = false;
+        
+        // Sort into buckets
+        for (let i = 0; i < BUCKETS.length; i++) {
+          if (wordCount <= BUCKETS[i]) {
+            acc[BUCKETS[i]].push(cur);
+            sorted = true;
+            break;
+          }
+        }
+        
+        // If word count exceeds all buckets, sort into fri/sat based on special characters
+        if (!sorted) {
           if (
             cur.dictionary.some(
-              (word) => word.includes("s") || word.includes("d")
+              (word) => FRI_CHARS.some(char => word.includes(char))
             )
           ) {
-            acc.sat.push(cur);
+            acc.fri.push(cur);
           } else {
-            acc.sun.push(cur);
+            acc.sat.push(cur);
           }
         }
 
         return acc;
       },
-      {
-        40: [],
-        60: [],
-        80: [],
-        100: [],
-        120: [],
-        sat: [],
-        sun: [],
-      } as Record<string, Game[]>
+      initialAcc
     );
 
   Object.keys(games).forEach((key) => {

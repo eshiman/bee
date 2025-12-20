@@ -20,6 +20,7 @@ import {
   WordSortOptions,
 } from "../stores/settings";
 import { getWordSort } from "../stores/settings/const";
+import { useStrings } from "../stores/settings/strings";
 
 interface GamePageProps {
   id?: string;
@@ -28,10 +29,13 @@ interface GamePageProps {
 export const GamePage: FunctionalComponent<GamePageProps> = ({
   id = "new",
 }) => {
-  const selectGame = useCallback(selectGameAndSaveById(id), [id]);
+  // Decode the ID from the URL (preact-router may or may not decode it automatically)
+  const decodedId = id && id !== "new" ? decodeURIComponent(id) : id;
+  const selectGame = useCallback(selectGameAndSaveById(decodedId), [decodedId]);
   const [data, gameDispatch] = useGameStore(selectGame, eqGameAndSave.equals);
 
   const [{ details, sort }, settingsDispatch] = useSettingsStore(identity);
+  const t = useStrings();
 
   const handleDetailsChange = useCallback(
     (details: DetailOptions) => settingsDispatch(changeSettings({ details })),
@@ -42,18 +46,23 @@ export const GamePage: FunctionalComponent<GamePageProps> = ({
     [settingsDispatch]
   );
   const handleSubmit = useCallback(
-    (guess: string) => gameDispatch(submitWord({ id, guess })),
-    [id, gameDispatch]
+    (guess: string) => gameDispatch(submitWord({ id: decodedId, guess })),
+    [decodedId, gameDispatch]
+  );
+
+  const errorMessage = useMemo(
+    () => t("game", "gameNotFoundError").replace("{id}", id),
+    [t, id]
   );
 
   return (
     <DefaultLayout>
       {DE.squash(
-        () => <div>Loading</div>,
+        () => <div>{t("game", "loading")}</div>,
         () => (
           <ErrorCard
-            title="Game Not Found"
-            error={`Game with id '${id}' does not exist!`}
+            title={t("game", "gameNotFound")}
+            error={errorMessage}
           />
         ),
         ({ game, save, score }: GameAndSave) => {

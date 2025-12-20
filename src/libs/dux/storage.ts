@@ -1,6 +1,6 @@
 import * as C from "io-ts/Codec";
 import * as E from "fp-ts/Either";
-import { drawTree } from "fp-ts/Tree";
+import { draw } from "io-ts/Decoder";
 import { pipe } from "fp-ts/pipeable";
 import { caseFn, Reducer } from "@nll/dux/Reducers";
 import {
@@ -15,7 +15,7 @@ import { map, mergeMap } from "rxjs/operators";
 
 import { notNil } from "../typeguards";
 
-const trySetState = <A>(codec: C.Codec<unknown, A>, key: string) => (s: A) =>
+const trySetState = <A>(codec: C.Codec<unknown, unknown, A>, key: string) => (s: A) =>
   E.tryCatch(
     () => {
       const encoded = codec.encode(s);
@@ -40,8 +40,8 @@ const tryParse = (s: string) =>
     (_) => "Failed to parse json",
   );
 
-const tryDecode = <S>(codec: C.Codec<unknown, S>) => (s: unknown) =>
-  pipe(codec.decode(s), E.mapLeft(drawTree));
+const tryDecode = <S>(codec: C.Codec<unknown, unknown, S>) => (s: unknown) =>
+  pipe(codec.decode(s), E.mapLeft(draw));
 
 const throwLeft = <E, A>(obs: Observable<E.Either<E, A>>) =>
   obs.pipe(mergeMap((v) => (E.isLeft(v) ? throwError(v.left) : of(v.right))));
@@ -49,7 +49,7 @@ const throwLeft = <E, A>(obs: Observable<E.Either<E, A>>) =>
 type StorageAction<A> = AsyncActionCreators<string, A, string>;
 
 const getStateFactory = <A, B extends A>(
-  codec: C.Codec<unknown, A>,
+  codec: C.Codec<unknown, unknown, A>,
   getStateActions: StorageAction<A>,
 ): RunOnce<B> =>
   asyncConcatMap(getStateActions, (key) =>
@@ -63,7 +63,7 @@ const getStateFactory = <A, B extends A>(
     ).pipe(throwLeft));
 
 const setStateFactory = <A, B extends A>(
-  codec: C.Codec<unknown, A>,
+  codec: C.Codec<unknown, unknown, A>,
   setStateActions: StorageAction<unknown>,
 ): RunEvery<B> =>
   filterEvery(setStateActions.pending, (state, { value: params }) => {
@@ -117,7 +117,7 @@ const setStateCaseFactory = <A, B extends A>({
  * wireup(store, 30 * 1000);
  */
 export const createStateRestore = <A, B extends A>(
-  codec: C.Codec<unknown, A>,
+  codec: C.Codec<unknown, unknown, A>,
   key: string,
 ) => {
   const creator = actionCreatorFactory(key);

@@ -1,5 +1,5 @@
 {
-  "version": "4",
+  "version": "5",
   "remote": {
     "https://deno.land/std@0.102.0/_util/assert.ts": "2f868145a042a11d5ad0a3c748dcf580add8a0dbc0e876eaa0026303a5488f58",
     "https://deno.land/std@0.102.0/flags/mod.ts": "0994240ad009980e46bc3bb1314e9469c7241617e4345b27afc82097fdbef841",
@@ -39,8 +39,8 @@
         "npm:react-spring@^8.0.27",
         "npm:reselect@4",
         "npm:sass@^1.54.0",
-        "npm:typescript@^3.9.2",
-        "npm:vite@^3.0.4"
+        "npm:typescript@^5.9.3",
+        "npm:vite@^7.3.0"
       ]
     }
   }

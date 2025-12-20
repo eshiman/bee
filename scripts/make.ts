@@ -7,11 +7,47 @@ import { pipe } from "https://deno.land/x/fun@v1.0.0/fns.ts";
 import {
   Game,
   Games,
-  intToGroup,
   ScheduledGames,
   SortedGames,
 } from "./types.ts";
-import { bannedWords } from "./profanity.ts";
+
+// ============================================================================
+// LANGUAGE CONFIGURATION
+// ============================================================================
+// Set to "english" or "russian" to switch between language configurations
+const LANGUAGE: "english" | "russian" = "russian";
+// ============================================================================
+
+// Import profanity filter based on language
+import { bannedWords as bannedWordsRussian } from "./profanity_russian.ts";
+import { bannedWords as bannedWordsEnglish } from "./profanity.ts";
+const bannedWords = LANGUAGE === "russian" ? bannedWordsRussian : bannedWordsEnglish;
+
+// Bucket thresholds based on language
+const BUCKETS = LANGUAGE === "russian"
+  ? [20, 30, 40, 50, 60]
+  : [40, 60, 80, 100, 120];
+
+// Day-to-bucket mapping based on language (matches BUCKETS order)
+const intToGroupLocal: Record<0 | 1 | 2 | 3 | 4 | 5 | 6, keyof SortedGames> = LANGUAGE === "russian"
+  ? {
+      0: "20",
+      1: "30",
+      2: "40",
+      3: "50",
+      4: "60",
+      5: "fri",
+      6: "sat",
+    }
+  : {
+      0: "40",
+      1: "60",
+      2: "80",
+      3: "100",
+      4: "120",
+      5: "fri",
+      6: "sat",
+    };
 
 // Env Arguments
 export const Commands = D.literal("runonce", "create", "filter");
@@ -53,15 +89,16 @@ export const sortGamesOnce = async (env: Env): Promise<void> => {
   }
 
   const games = Object.values(gamesDecoded.right) as unknown as Mutable<Games>;
+  
+  // Initialize sortedGames with dynamic buckets
   const sortedGames: Mutable<SortedGames> = {
-    "40": [],
-    "60": [],
-    "80": [],
-    "100": [],
-    "120": [],
-    "fri": [],
-    "sat": [],
-  };
+    fri: [],
+    sat: [],
+  } as Mutable<SortedGames>;
+  // Add bucket arrays dynamically
+  BUCKETS.forEach(bucket => {
+    (sortedGames as any)[String(bucket)] = [];
+  });
 
   for (const key in games) {
     const game = games[key];
@@ -69,17 +106,19 @@ export const sortGamesOnce = async (env: Env): Promise<void> => {
       bannedWords.every((w) => w !== word)
     );
     const length = game.dictionary.length;
-    if (length < 41) {
-      sortedGames["40"].push(game);
-    } else if (length < 61) {
-      sortedGames["60"].push(game);
-    } else if (length < 81) {
-      sortedGames["80"].push(game);
-    } else if (length < 101) {
-      sortedGames["100"].push(game);
-    } else if (length < 121) {
-      sortedGames["120"].push(game);
-    } else {
+    
+    let sorted = false;
+    // Sort into buckets
+    for (let i = 0; i < BUCKETS.length; i++) {
+      if (length < BUCKETS[i] + 1) {
+        (sortedGames as any)[String(BUCKETS[i])].push(game);
+        sorted = true;
+        break;
+      }
+    }
+    
+    // If word count exceeds all buckets, sort into fri/sat based on game.id
+    if (!sorted) {
       if (game.id.includes("s") || game.id.includes("d")) {
         sortedGames["fri"].push(game);
       } else {
@@ -142,7 +181,7 @@ export const create = async (env: Env): Promise<void> => {
   // Generate the new puzzles
   while (env.n > 0) {
     const dayNumber = getDay(day) as 0 | 1 | 2 | 3 | 4 | 5 | 6;
-    const dayKey = intToGroup[dayNumber];
+    const dayKey = intToGroupLocal[dayNumber];
     const gamesForDay = sortedGames[dayKey];
 
     let found = false;
