@@ -25,11 +25,11 @@ export const Strings = {
     },
     showOldPuzzles: {
       [LanguageOptions.english]: "Show Old Puzzles",
-      [LanguageOptions.russian]: "Показать старые головоломочки",
+      [LanguageOptions.russian]: "Показать старые головоломки",
     },
     hideOldPuzzles: {
       [LanguageOptions.english]: "Hide Old Puzzles",
-      [LanguageOptions.russian]: "Скрыть старые головоломочки",
+      [LanguageOptions.russian]: "Скрыть старые головоломки",
     },
   },
 
@@ -47,7 +47,7 @@ export const Strings = {
     },
     aboutEnjoy: {
       [LanguageOptions.english]: "Please enjoy, Babushka Polina!",
-      [LanguageOptions.russian]: "Наслаждайтесь, Бабушка Полина!",
+      [LanguageOptions.russian]: "Получай удовольствие, Бабушка Полина!",
     },
     aboutLove: {
       [LanguageOptions.english]: "Love,",
@@ -65,7 +65,7 @@ export const Strings = {
       [LanguageOptions.english]:
         "The goal of the puzzle is to find all of the words that can be created with the given seven letters. There are only a few notes:",
       [LanguageOptions.russian]:
-        "Цель головоломочки — найти все слова, которые можно составить из данных семи букв. Есть несколько правил:",
+        "Цель головоломки — найти все слова, которые можно составить из данных семи букв. Есть несколько правил:",
     },
     ruleMinLength: {
       [LanguageOptions.english]: "Words must be 4 letters or longer.",
@@ -91,33 +91,33 @@ export const Strings = {
     },
     weeklySunday: {
       [LanguageOptions.english]: "Sunday's puzzles will have fewer than 41 words.",
-      [LanguageOptions.russian]: "Воскресные головоломочки будут содержать менее 21 слова.",
+      [LanguageOptions.russian]: "Воскресные головоломки будут содержать менее 21 слова.",
     },
     weeklyMonday: {
       [LanguageOptions.english]: "Monday's puzzles will have 41 to 60 words.",
-      [LanguageOptions.russian]: "Понедельничные головоломочки будут содержать от 21 до 30 слов.",
+      [LanguageOptions.russian]: "Понедельничные головоломки будут содержать от 21 до 30 слов.",
     },
     weeklyTuesday: {
       [LanguageOptions.english]: "Tuesday's puzzles will have 61 to 80 words.",
-      [LanguageOptions.russian]: "Вторничные головоломочки будут содержать от 31 до 40 слов.",
+      [LanguageOptions.russian]: "Вторничные головоломки будут содержать от 31 до 40 слов.",
     },
     weeklyWednesday: {
       [LanguageOptions.english]: "Wednesday's puzzles will have 81 to 100 words.",
-      [LanguageOptions.russian]: "Средние головоломочки будут содержать от 41 до 50 слов.",
+      [LanguageOptions.russian]: "Средние головоломки будут содержать от 41 до 50 слов.",
     },
     weeklyThursday: {
       [LanguageOptions.english]: "Thursday's puzzles will have 101 to 120 words.",
-      [LanguageOptions.russian]: "Четверговые головоломочки будут содержать от 51 до 60 слов.",
+      [LanguageOptions.russian]: "Четверговые головоломки будут содержать от 51 до 60 слов.",
     },
     weeklyFriday: {
       [LanguageOptions.english]: "Friday's puzzles will have than more 120 words.",
-      [LanguageOptions.russian]: "Пятничные головоломочки будут содержать более 60 слов.",
+      [LanguageOptions.russian]: "Пятничные головоломки будут содержать более 60 слов.",
     },
     weeklySaturday: {
       [LanguageOptions.english]:
         "Saturday's puzzles will have more than 70 words and will exclude the letters s and d.",
       [LanguageOptions.russian]:
-        "Субботние головоломочки будут содержать более 70 слов и будут исключать буквы \"т\" и \"л\".",
+        "Субботние головоломки будут содержать более 70 слов и будут исключать буквы \"т\" и \"л\".",
     },
   },
 
