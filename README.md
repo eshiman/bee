@@ -10,7 +10,7 @@ A weekend clone of the [New York Times Spelling Bee](https://www.nytimes.com/puz
 
 English words are pulled from from the [English Aspell Dictionary](http://aspell.net/).
 
-Russian words are pulled from hermitdave's [Word Frequency Lists](https://github.com/hermitdave/FrequencyWords).
+Russian words are pulled from hermitdave's [Word Frequency Lists](https://github.com/hermitdave/FrequencyWords), filtered using Aspell's [Russian Dictionary](https://ftp.gnu.org/gnu/aspell/dict/0index.html)
 
 ## Running Locally
 
@@ -18,7 +18,7 @@ Russian words are pulled from hermitdave's [Word Frequency Lists](https://github
    ```bash
    npm install
    ```
-
+u
 2. Start the development server:
    ```bash
    npm start
