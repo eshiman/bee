@@ -124,7 +124,7 @@ gameStore.addReducers(foundWordCase);
 const getGamesUrl = (language: LanguageOptions): string => {
   const baseUrl = import.meta.env.BASE_URL;
   if (language === LanguageOptions.russian) {
-    return `${baseUrl}games_russian.20251219.json`;
+    return `${baseUrl}games_russian.20251230.json`;
   } else {
     return `${baseUrl}games.20250626.json`;
   }
