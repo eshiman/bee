@@ -65,7 +65,8 @@ export const Strings = {
       [LanguageOptions.english]:
         "The goal of the puzzle is to find all of the words that can be created with the given seven letters. There are only a few notes:",
       [LanguageOptions.russian]:
-        "Цель головоломки — найти все слова, которые можно составить из данных семи букв. Есть несколько правил:",
+      //"The goal of the puzzle is to find all of the most commonly used words that can be created with the given seven letters. Any additional words found gives you extra credit. There are only a few notes:",
+        "Цель головоломки — найти все наиболее часто используемые слова, которые можно составить из данных семи букв. Любые дополнительные найденные слова дают вам дополнительные очки. Есть несколько правил:",
     },
     ruleMinLength: {
       [LanguageOptions.english]: "Words must be 4 letters or longer.",
