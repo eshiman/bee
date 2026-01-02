@@ -10,6 +10,8 @@ export const GameCodec: C.Codec<unknown, unknown, Game> = C.type({
   date: C.string,
 });
 export const GamesCodec = C.record(GameCodec);
+export const GameCountsCodec: C.Codec<unknown, unknown, Record<string, number>> = 
+  C.record(C.number);
 
 /** Save / Saves */
 export const SaveCodec: C.Codec<unknown, unknown, Save> = C.type({

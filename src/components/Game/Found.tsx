@@ -6,7 +6,7 @@ import { If } from "../Control";
 import { Button } from "../Button";
 
 import { DetailOptions, WordSortOptions } from "../../stores/settings";
-import { Game } from "../../stores/game";
+import { Game, getGameDictionaryCount, useCountStore } from "../../stores/game";
 import { eqInsensitive } from "../../libs/strings";
 import { notNil } from "../../libs/typeguards";
 import { isIn } from "../../libs/arrays";
@@ -174,6 +174,7 @@ export const Found: FunctionalComponent<FoundProps> = ({
   const [showAll, setShowAll] = useState(false);
   const handleShowAll = useCallback(() => setShowAll((s) => !s), [setShowAll]);
   const t = useStrings();
+  const [countState] = useCountStore((state) => state); // Add this subscription
 
   const list = showAll ? game.dictionary : found;
   const words = useMemo(() => list.filter((l) => l.startsWith(word)), [
@@ -213,7 +214,7 @@ export const Found: FunctionalComponent<FoundProps> = ({
         <div class="fld-row flg-4 jc-spb">
           <span>
             {t("gameComponent", "found")} <strong>{found.length}</strong> /{" "}
-            <strong>{game.dictionary.length}</strong>
+            <strong>{getGameDictionaryCount(game)}</strong>
           </span>
 
           <span class="cf-rev-honey-dark">

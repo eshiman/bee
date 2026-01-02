@@ -8,6 +8,8 @@ import {
   useGameStore,
   selectAvailableGames,
   GameAndSave,
+  getGameDictionaryCount,
+  useCountStore,
 } from "../stores/game";
 
 import { DefaultLayout } from "../components/Layouts";
@@ -45,7 +47,7 @@ const GameList: FunctionalComponent<{ data: GameAndSave[] }> = ({ data }) => {
             <span>
               <strong>{save.found.length}</strong>
               <span>/</span>
-              <strong>{game.dictionary.length}</strong>
+              <strong>{getGameDictionaryCount(game)}</strong>
             </span>
 
             <span class="as-end cf-light fw-d1">
@@ -68,6 +70,7 @@ const GameList: FunctionalComponent<{ data: GameAndSave[] }> = ({ data }) => {
 
 export const GameListPage: FunctionalComponent<{}> = () => {
   const [data] = useGameStore(selectAvailableGames);
+  const [countState] = useCountStore((state) => state);
   const t = useStrings();
 
   return (

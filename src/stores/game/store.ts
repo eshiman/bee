@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "preact/hooks";
 import { Getter, Lens } from "monocle-ts";
-import { none, some } from "fp-ts/Option";
+import { none, Option, some } from "fp-ts/Option";
 import { createStore, filterEvery } from "@nll/dux/Store";
 import { actionCreatorFactory } from "@nll/dux/Actions";
 import { useDispatchFactory, useStoreFactory } from "@nll/dux/React";
@@ -9,7 +9,7 @@ import { asyncReducerFactory, caseFn } from "@nll/dux/Reducers";
 import { asyncExhaustMap } from "@nll/dux/Operators";
 import { compareDesc, endOfToday, isBefore, parseISO } from "date-fns";
 import { createSelector } from "reselect";
-import { from, Observable } from "rxjs";
+import { from, Observable, of} from "rxjs";
 import { ajax } from "rxjs/ajax";
 
 import { createStateRestore, logger } from "../../libs/dux";
@@ -20,13 +20,15 @@ import {
   Game,
   GameAndSave,
   GameState,
+  CountState,
   goodNotice,
   INITIAL_GAME_STATE,
+  INITIAL_COUNT_STATE,
   Notice,
   Save,
   wordToScore,
 } from "./consts";
-import { GamesCodec, SaveStateCodec } from "./validators";
+import { GamesCodec, SaveStateCodec, GameCountsCodec } from "./validators";
 import { mapDecode } from "../../libs/ajax";
 import { failureBuzz, settingsStore, successBuzz, changeSettings } from "../settings";
 import { INITIAL_SETTINGS_STATE } from "../settings/const";
@@ -45,11 +47,19 @@ const action = actionCreatorFactory("GAME_STORE");
 export const gameStore = createStore(INITIAL_GAME_STATE).addMetaReducers(
   logger(),
 );
+export const countStore = createStore(INITIAL_COUNT_STATE).addMetaReducers(
+  logger(),
+);
 export const useGameStore = useStoreFactory(gameStore, useState, useEffect);
 export const useGameDispatch = useDispatchFactory(gameStore, useCallback);
 
+export const useCountStore = useStoreFactory(countStore, useState, useEffect);
+export const useCountDispatch = useDispatchFactory(countStore, useCallback);
+
 /** Lenses */
 const rootProp = Lens.fromProp<GameState>();
+const countRootProp = Lens.fromProp<CountState>();
+
 
 export const gamesL = rootProp("games");
 export const gameGetter = (id: string) =>
@@ -130,6 +140,17 @@ const getGamesUrl = (language: LanguageOptions): string => {
   }
 };
 
+/** Get Games Count URL if it exists */
+const getGamesCountUrl = (language: LanguageOptions): string | undefined => {
+  const baseUrl = import.meta.env.BASE_URL;
+  if (language === LanguageOptions.russian) {
+    return `${baseUrl}games_russian_counts.20251231.json`;
+  } else {
+    // No generated counts for non-Russian games
+    return undefined;
+  }
+};
+
 /** Get  Games */
 const getGames = action.async<string, Record<string, Game>, Error>("GET_GAMES");
 const getGamesReducer = asyncReducerFactory(getGames, gamesL);
@@ -139,6 +160,19 @@ const getGamesRunOnce = asyncExhaustMap<string, Record<string, Game>, Error, Rec
   getGames,
   getGamesHandler,
 );
+const getCounts = action.async<string | undefined, Record<string, number>, Error>("GET_COUNTS");
+const getCountsReducer = asyncReducerFactory(getCounts, countRootProp("counts"));
+const getCountsHandler = (url: string | undefined): Observable<Record<string, number>> => {
+  if (!url) {
+    // Return empty object if no counts URL (for non-Russian games)
+    return of({});
+  }
+  return ajax.getJSON(url).pipe(mapDecode(GameCountsCodec));
+};
+const getCountsRunOnce = asyncExhaustMap<string | undefined, Record<string, number>, Error, Record<string, any>>(
+  getCounts,
+  getCountsHandler,
+);
 
 // Watch for language changes and reload games
 const languageChangeRunEvery = filterEvery(
@@ -146,7 +180,10 @@ const languageChangeRunEvery = filterEvery(
   (_, { value }) => {
     if (value.language !== undefined) {
       const url = getGamesUrl(value.language);
+      const counts_url = getGamesCountUrl(value.language);
+      // TODO: Add counts to the game if it exists
       gameStore.dispatch(getGames.pending(url));
+      countStore.dispatch(getCounts.pending(counts_url));
     }
   },
 );
@@ -157,9 +194,14 @@ gameStore
   .addReducers(getGamesReducer)
   .addRunOnces(getGamesRunOnce);
 
+countStore
+  .addReducers(getCountsReducer)
+  .addRunOnces(getCountsRunOnce);
+
 // Load games on initial setup based on initial language
 // The filterEvery will handle language changes including when settings are loaded from localStorage
 gameStore.dispatch(getGames.pending(getGamesUrl(INITIAL_SETTINGS_STATE.language)));
+countStore.dispatch(getCounts.pending(getGamesCountUrl(INITIAL_SETTINGS_STATE.language)));
 
 /** Save Storage - Migrate to simple wireup in one week */
 const { wireupActions } = createStateRestore<SaveStateCodec, GameState>(
@@ -206,3 +248,17 @@ export const selectAvailableGames = createSelector(
     )(gamesDE);
   },
 );
+
+export const getGameDictionaryCount = (game: Game): number => {
+  const countsState = countStore.getState();
+
+  if (DE.isSuccess(countsState.counts)) {
+    // Access the actual value using .right, not just .value
+    const counts = countsState.counts.value.right;
+    const count = counts[game.id];
+    // Use count if available, otherwise fall back to dictionary.length
+    return count !== undefined ? count : game.dictionary.length;
+  }
+  // Fall back to dictionary.length if counts haven't loaded yet
+  return game.dictionary.length;
+};

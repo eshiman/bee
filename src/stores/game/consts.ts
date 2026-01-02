@@ -30,6 +30,10 @@ export interface GameState {
   saves: Record<string, Save>;
 }
 
+export interface CountState {
+  counts: DatumEither<Error, Record<string, number>>;
+}
+
 export type GameAndSave = {
   game: Game;
   save: Save;
@@ -59,6 +63,10 @@ export const badNotice = (message: string): Notice => ({
 export const INITIAL_GAME_STATE: GameState = {
   saves: {},
   games: initial,
+};
+
+export const INITIAL_COUNT_STATE: CountState = {
+  counts: initial,
 };
 
 // Helper function to get the appropriate score map based on language
